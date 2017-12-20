@@ -6,6 +6,8 @@ ARG VERSION
 LABEL build_version="Linuxserver.io version:- ${VERSION} Build-date:- ${BUILD_DATE}"
 LABEL maintainer="sparklyballs"
 
+ENV PLEXPY_VERSION v2.0.1-beta
+
 RUN \
  echo "**** install packages ****" && \
  apk add --no-cache --virtual=build-dependencies \
@@ -17,12 +19,15 @@ RUN \
  pip install --no-cache-dir -U \
 	pycryptodomex && \
  echo "**** install app ****" && \
- git clone --depth 1 https://github.com/JonnyWong16/plexpy /app/plexpy && \
+ curl -L https://github.com/JonnyWong16/plexpy/archive/${PLEXPY_VERSION}.tar.gz --output ${PLEXPY_VERSION}.tar.gz && \
+ mkdir -p /app/plexpy && \
+ tar --strip-components=1 -C /app/plexpy -zxf ${PLEXPY_VERSION}.tar.gz && \
  echo "**** cleanup ****" && \
  apk del --purge \
 	build-dependencies && \
  rm -rf \
-	/root/.cache
+	/root/.cache \
+	${PLEXPY_VERSION}.tar.gz
 
 # add local files
 COPY root/ /
